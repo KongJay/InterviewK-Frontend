@@ -1,18 +1,17 @@
 "use client";
-import {
-  GithubFilled,
-  LogoutOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import { ProLayout } from "@ant-design/pro-components";
+import {GithubFilled, LogoutOutlined, SearchOutlined,} from "@ant-design/icons";
+import {ProLayout} from "@ant-design/pro-components";
 
-import { Dropdown, Input, theme } from "antd";
-import React from "react";
-import { usePathname } from "next/navigation";
+import {Dropdown, Input, theme} from "antd";
+import React, {useState} from "react";
+import {usePathname} from "next/navigation";
 import Link from "next/link";
 import GlobalFooter from "@/app/components/GlobalFooter";
 import "./index.css";
-import menu from "../../../config/menu";
+import menus from "../../../config/menu";
+import getAccessibleMenus from "@/access/menuAccess";
+import {useSelector} from "react-redux";
+import {RootState} from "@/stores";
 //搜索条
 const SearchInput = () => {
   const { token } = theme.useToken();
@@ -56,7 +55,9 @@ interface Props {
 
 export default function BasicLayout({ children }: Props) {
   //相对路径
+  const [text, setText] = useState<string>("");
   const pathname = usePathname();
+  const loginUser = useSelector((state: RootState) => state.loginUser);
   return (
     <div
       id="basicLayout"
@@ -118,7 +119,7 @@ export default function BasicLayout({ children }: Props) {
         onMenuHeaderClick={(e) => console.log(e)}
         //定义菜单
         menuDataRender={() => {
-          return menu;
+          return getAccessibleMenus(loginUser, menus);
         }}
         //定义了菜单项如何渲染
         menuItemRender={(item, dom) => (
