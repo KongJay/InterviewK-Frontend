@@ -1,135 +1,178 @@
 "use client";
 import {GithubFilled, LogoutOutlined, SearchOutlined,} from "@ant-design/icons";
 import {ProLayout} from "@ant-design/pro-components";
-
-import {Dropdown, Input, theme} from "antd";
-import React, {useState} from "react";
-import {usePathname} from "next/navigation";
+import {Dropdown, Input, message} from "antd";
+import React from "react";
+import Image from "next/image";
+import {usePathname, useRouter} from "next/navigation";
 import Link from "next/link";
 import GlobalFooter from "@/app/components/GlobalFooter";
-import "./index.css";
-import menus from "../../../config/menu";
+import {menus} from "../../../config/menu";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch, RootState} from "@/stores";
 import getAccessibleMenus from "@/access/menuAccess";
-import {useSelector} from "react-redux";
-import {RootState} from "@/stores";
-//搜索条
+import "./index.css";
+import {userLogoutUsingPost} from "@/api/userController";
+import {DEFAULT_USER} from "@/constants/user";
+import {setLoginUser} from "@/stores/loginUser";
+import {ProForm} from "@ant-design/pro-form/lib";
+
+
+/**
+ * 搜索条
+ * @constructor
+ */
 const SearchInput = () => {
-  const { token } = theme.useToken();
-  return (
-    <div
-      key="SearchOutlined"
-      aria-hidden
-      style={{
-        display: "flex",
-        alignItems: "center",
-        marginInlineEnd: 24,
-      }}
-      onMouseDown={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-    >
-      <Input
-        style={{
-          borderRadius: 4,
-          marginInlineEnd: 12,
-          backgroundColor: token.colorBgTextHover,
-        }}
-        prefix={
-          <SearchOutlined
+    return (
+        <div
+            key="SearchOutlined"
+            aria-hidden
             style={{
-              color: token.colorTextLightSolid,
+                display: "flex",
+                alignItems: "center",
+                marginInlineEnd: 24,
             }}
-          />
-        }
-        placeholder="搜索题目"
-        variant="borderless"
-      />
-    </div>
-  );
+            onMouseDown={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+            }}
+        >
+            <Input
+                style={{
+                    borderRadius: 4,
+                    marginInlineEnd: 12,
+                }}
+                prefix={<SearchOutlined />}
+                placeholder="搜索题目"
+                variant="borderless"
+            />
+        </div>
+    );
 };
 
 interface Props {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }
 
+/**
+ * 全局通用布局
+ * @param children
+ * @constructor
+ */
 export default function BasicLayout({ children }: Props) {
-  //相对路径
-  const [text, setText] = useState<string>("");
-  const pathname = usePathname();
-  const loginUser = useSelector((state: RootState) => state.loginUser);
-  return (
-    <div
-      id="basicLayout"
-      style={{
-        height: "100vh",
-        overflow: "auto",
-      }}
-    >
-      <ProLayout
-        title={"红模仿のJava面试平台"}
-        layout={"top"}
-        location={{
-          //增加高亮
-          pathname,
-        }}
-        avatarProps={{
-          src: "https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg",
-          size: "small",
-          title: "红模仿",
-          render: (props, dom) => {
-            return (
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "logout",
-                      icon: <LogoutOutlined />,
-                      label: "退出登录",
-                    },
-                  ],
-                }}
-              >
-                {dom}
-              </Dropdown>
-            );
-          },
-        }}
-        actionsRender={(props) => {
-          if (props.isMobile) return [];
+    const pathname = usePathname();
+    // 当前登录用户
+    const loginUser = useSelector((state: RootState) => state.loginUser);
+    const dispatch = useDispatch<AppDispatch>();
+    const router = useRouter();
+    const userLogout =async ()=>{
+        try {
+            await userLogoutUsingPost();
+            dispatch(setLoginUser(DEFAULT_USER));
+            router.push("/user/login");
+        }catch (e:any){
+                message.error("注销失败",e.message);
+        }
 
-          return [
-            <SearchInput key="search" />,
-            <a key="github" href="www.github.com/KongJay" target="_blank">
-              <GithubFilled key="GithubFilled" />,
-            </a>,
-          ];
-        }}
-        headerTitleRender={(logo, title, _) => {
-          return (
-            <a>
-              {logo}
-              {title}
-            </a>
-          );
-        }}
-        footerRender={() => {
-          return <GlobalFooter></GlobalFooter>;
-        }}
-        onMenuHeaderClick={(e) => console.log(e)}
-        //定义菜单
-        menuDataRender={() => {
-          return getAccessibleMenus(loginUser, menus);
-        }}
-        //定义了菜单项如何渲染
-        menuItemRender={(item, dom) => (
-          <Link href={item.path || "/"} target={item.target}>
-            {dom}
-          </Link>
-        )}
-      >
-        {children}
-      </ProLayout>
-    </div>
-  );
+
+    }
+    return (
+        <div
+            id="basicLayout"
+            style={{
+                height: "100vh",
+                overflow: "auto",
+            }}
+        >
+            <ProLayout
+                title="面试鸭刷题平台"
+                layout="top"
+                logo={
+                    <Image
+                        src="/assets/logo.png"
+                        height={32}
+                        width={32}
+                        alt="面试鸭刷题网站 - 程序员鱼皮"
+                    />
+                }
+                location={{
+                    pathname,
+                }}
+                avatarProps={{
+                    src: loginUser.userAvatar || "/assets/logo.png",
+                    size: "small",
+                    title: loginUser.userName || "鱼皮鸭",
+                    render: (props, dom) => {
+                        if(!loginUser.id){
+                            return <div onClick={() =>{
+                                router.push("/user/login");
+                            }}>
+                                {dom}
+                            </div>
+                        }
+                        return (
+                            <Dropdown
+                                menu={{
+                                    items: [
+                                        {
+                                            key: "logout",
+                                            icon: <LogoutOutlined />,
+                                            label: "退出登录",
+                                        },
+                                    ],
+                                    onClick :async (even:{key:React.Key})=>{
+                                        const {key} = even
+                                        if(key === "logout"){
+                                            userLogout();
+                                        }
+
+                                    }
+                                }}
+                            >
+                                {dom}
+                            </Dropdown>
+                        );
+                    },
+                }}
+                actionsRender={(props) => {
+                    if (props.isMobile) return [];
+                    return [
+                        <SearchInput key="search" />,
+                        <a
+                            key="github"
+                            href="https://github.com/liyupi/mianshiya-next"
+                            target="_blank"
+                        >
+                            <GithubFilled key="GithubFilled" />
+                        </a>,
+                    ];
+                }}
+                headerTitleRender={(logo, title, _) => {
+                    return (
+                        <a>
+                            {logo}
+                            {title}
+                        </a>
+                    );
+                }}
+                // 渲染底部栏
+                footerRender={() => {
+                    return <GlobalFooter />;
+                }}
+                onMenuHeaderClick={(e) => console.log(e)}
+                // 定义有哪些菜单
+                menuDataRender={() => {
+                    return getAccessibleMenus(loginUser, menus);
+                }}
+                // 定义了菜单项如何渲染
+                menuItemRender={(item, dom) => (
+                    <Link href={item.path || "/"} target={item.target}>
+                        {dom}
+                    </Link>
+                )}
+            >
+                {children}
+            </ProLayout>
+        </div>
+    );
 }

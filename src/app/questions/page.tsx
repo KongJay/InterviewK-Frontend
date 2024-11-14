@@ -1,4 +1,4 @@
-import '../index.css'
+import '../user/login/index.css'
 
 export default function HomePage
 () {

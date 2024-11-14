@@ -1,9 +1,9 @@
 /**
  * 权限定义
  */
-const ACCESS_EMUN ={
+const ACCESS_ENUM ={
     NOT_LOGIN:"notlogin",
     USER:"user",
     ADMIN:"admin"
 }
-export default ACCESS_EMUN;
+export default ACCESS_ENUM;
