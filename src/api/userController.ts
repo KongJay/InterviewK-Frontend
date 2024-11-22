@@ -1,7 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
 import request from "@/libs/request";
-import {any} from "prop-types";
 
 /** addUser POST /api/user/add */
 export async function addUserUsingPost(
@@ -14,6 +13,16 @@ export async function addUserUsingPost(
       "Content-Type": "application/json",
     },
     data: body,
+    ...(options || {}),
+  });
+}
+
+/** addUserSignIns POST /api/user/add/sign_in */
+export async function addUserSignInsUsingPost(options?: {
+  [key: string]: any;
+}) {
+  return request<API.BaseResponseBoolean_>("/api/user/add/sign_in", {
+    method: "POST",
     ...(options || {}),
   });
 }
@@ -52,6 +61,21 @@ export async function getUserByIdUsingGet(
 export async function getLoginUserUsingGet(options?: { [key: string]: any }) {
   return request<API.BaseResponseLoginUserVO_>("/api/user/get/login", {
     method: "GET",
+    ...(options || {}),
+  });
+}
+
+/** getUserSigninRecord GET /api/user/get/sign_in */
+export async function getUserSigninRecordUsingGet(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getUserSigninRecordUsingGETParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseListInt_>("/api/user/get/sign_in", {
+    method: "GET",
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }

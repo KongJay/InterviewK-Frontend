@@ -6,7 +6,7 @@ import Link from "next/link";
 import { listQuestionBankVoByPageUsingPost } from "@/api/questionBankController";
 import { listQuestionVoByPageUsingPost } from "@/api/questionController";
 import QuestionBankList from "@/app/components/QuestionBankList";
-import QuestionList from "@/app/components/QuestionBank";
+import QuestionList from "../components/QuestionList";
 
 /**
  * 题库页

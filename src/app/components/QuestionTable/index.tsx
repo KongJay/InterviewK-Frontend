@@ -5,11 +5,13 @@ import { ProTable } from "@ant-design/pro-components";
 import React, { useRef, useState } from "react";
 import TagList from "@/app/components/TagList";
 import { TablePaginationConfig } from "antd";
+import Link from "next/link";
 
 interface Props {
   //默认值用于展示服务端渲染的数据
   defaultQuestionList?: API.QuestionVO[];
   defaultTotal?: number;
+  defaultSearchParams?:API.QuestionQueryRequest;
 }
 
 /**
@@ -18,7 +20,7 @@ interface Props {
  * @constructor
  */
 const QuestionTable: React.FC = (props: Props) => {
-  const { defaultQuestionList, defaultTotal } = props;
+  const { defaultQuestionList, defaultTotal ,defaultSearchParams = {}} = props;
   const actionRef = useRef<ActionType>();
   const [questionList, setQuestionList] = useState<API.QuestionVO[]>(
     defaultQuestionList || [],
@@ -29,22 +31,24 @@ const QuestionTable: React.FC = (props: Props) => {
   /**
    * 表格列配置
    */
-  const columns: ProColumns<API.Question>[] = [
+  const columns: ProColumns<API.QuestionVO>[] = [
     {
       title: "标题",
       dataIndex: "title",
       valueType: "text",
+      render:(_,record)=>{
+        return <Link href={`/questions/${record.id}`}>{record.title}</Link>
+      }
     },
     {
       title: "标签",
-      dataIndex: "tags",
+      dataIndex: "tagList",
       valueType: "select",
       fieldProps: {
         mode: "tags",
       },
       render: (_, record) => {
-        const tagList = JSON.parse(record.tags || "[]");
-        return <TagList tagList={tagList}></TagList>;
+        return <TagList tagList={record.tagList}></TagList>;
       },
     },
   ];
@@ -58,6 +62,9 @@ const QuestionTable: React.FC = (props: Props) => {
         search={{
           labelWidth: "auto",
         }}
+        form={{
+          initialValues:defaultSearchParams,
+        }}
         dataSource = {questionList}
         pagination={
           {
@@ -68,12 +75,12 @@ const QuestionTable: React.FC = (props: Props) => {
           } as TablePaginationConfig
         }
         request={async (params, sort, filter) => {
-          if(init){
+          /*if(init){
             setInit(false);
             if(defaultQuestionList && defaultTotal){
               return;
             }
-          }
+          }*/
           const sortField = Object.keys(sort)?.[0] || 'createTime';
           const sortOrder = sort?.[sortField] || 'descend';
 

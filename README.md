@@ -37,3 +37,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 BUG
 1.更新数据，前端ID和后端ID不同
 2.首次请求处理不成功
+
+1.题库详情页

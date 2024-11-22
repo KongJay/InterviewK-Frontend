@@ -10,11 +10,13 @@ import QuestionTable from "@/app/components/QuestionTable";
  * 题目列表页面
  * @constructor
  */
-export default async function QuestionsPage() {
+export default async function QuestionsPage({searchParams}) {
+  const {q : searchText} = searchParams;
   let questionList = [];
   let total = 0;
   try {
     const res = await listQuestionVoByPageUsingPost({
+      title:searchText,
       pageSize: 12,
       sortField: "createTime",
       sortOrder: "desc",
@@ -28,7 +30,9 @@ export default async function QuestionsPage() {
     <div id="questionsPage" className="max-width-content">
       <Title level={3}>题目大全</Title>
 
-      <QuestionTable defaultQuestionList={questionList}></QuestionTable>
+      <QuestionTable defaultQuestionList={questionList} defaultSearchParams={{
+        title:searchText
+      }}></QuestionTable>
     </div>
   );
 }

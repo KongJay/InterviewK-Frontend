@@ -1,15 +1,13 @@
 "use server";
 import "./index.css";
 import Title from "antd/es/typography/Title";
-import { Divider, Flex, message } from "antd";
+import {Divider, Flex, message} from "antd";
 import Link from "next/link";
-import { userLoginUsingPost } from "@/api/userController";
-import { setLoginUser } from "@/stores/loginUser";
-import { listQuestionBankQuestionVoByPageUsingPost } from "@/api/questionBankQuestionController";
-import { listQuestionBankVoByPageUsingPost } from "@/api/questionBankController";
+import {listQuestionBankVoByPageUsingPost} from "@/api/questionBankController";
 import {listQuestionVoByPageUsingPost} from "@/api/questionController";
 import QuestionBankList from "@/app/components/QuestionBankList";
-import QuestionList from "@/app/components/QuestionBank";
+import QuestionList from "@/app/components/QuestionList";
+
 
 /**
  * 主页
