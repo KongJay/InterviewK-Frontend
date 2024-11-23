@@ -1,5 +1,8 @@
 "use client";
-import { listQuestionVoByPageUsingPost } from "@/api/questionController";
+import {
+  listQuestionVoByPageUsingPost,
+  searchQuestionVoByPageUsingPost,
+} from "@/api/questionController";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import React, { useRef, useState } from "react";
@@ -11,7 +14,7 @@ interface Props {
   //默认值用于展示服务端渲染的数据
   defaultQuestionList?: API.QuestionVO[];
   defaultTotal?: number;
-  defaultSearchParams?:API.QuestionQueryRequest;
+  defaultSearchParams?: API.QuestionQueryRequest;
 }
 
 /**
@@ -20,26 +23,34 @@ interface Props {
  * @constructor
  */
 const QuestionTable: React.FC = (props: Props) => {
-  const { defaultQuestionList, defaultTotal ,defaultSearchParams = {}} = props;
+  const { defaultQuestionList, defaultTotal, defaultSearchParams = {} } = props;
   const actionRef = useRef<ActionType>();
   const [questionList, setQuestionList] = useState<API.QuestionVO[]>(
     defaultQuestionList || [],
   );
   const [total, setTotal] = useState<number>(defaultTotal || 0);
   //用于判断是否是第一次访问
-  const [init,setInit] = useState<boolean>(true);
+  const [init, setInit] = useState<boolean>(true);
   /**
    * 表格列配置
    */
   const columns: ProColumns<API.QuestionVO>[] = [
     {
+      title: "搜索",
+      dataIndex: "searchText",
+      valueType: "text",
+      hideInTable: true,
+    },
+    {
       title: "标题",
       dataIndex: "title",
       valueType: "text",
-      render:(_,record)=>{
-        return <Link href={`/questions/${record.id}`}>{record.title}</Link>
-      }
+      hideInSearch: true,
+      render: (_, record) => {
+        return <Link href={`/questions/${record.id}`}>{record.title}</Link>;
+      },
     },
+
     {
       title: "标签",
       dataIndex: "tagList",
@@ -53,7 +64,6 @@ const QuestionTable: React.FC = (props: Props) => {
     },
   ];
 
-
   return (
     <div className="question-table">
       <ProTable<API.QuestionVO>
@@ -63,9 +73,9 @@ const QuestionTable: React.FC = (props: Props) => {
           labelWidth: "auto",
         }}
         form={{
-          initialValues:defaultSearchParams,
+          initialValues: defaultSearchParams,
         }}
-        dataSource = {questionList}
+        dataSource={questionList}
         pagination={
           {
             pageSize: 12,
@@ -76,15 +86,15 @@ const QuestionTable: React.FC = (props: Props) => {
         }
         request={async (params, sort, filter) => {
           /*if(init){
-            setInit(false);
-            if(defaultQuestionList && defaultTotal){
-              return;
-            }
-          }*/
-          const sortField = Object.keys(sort)?.[0] || 'createTime';
-          const sortOrder = sort?.[sortField] || 'descend';
+                                setInit(false);
+                                if(defaultQuestionList && defaultTotal){
+                                  return;
+                                }
+                              }*/
+          const sortField = Object.keys(sort)?.[0] || "createTime";
+          const sortOrder = sort?.[sortField] || "descend";
 
-          const { data, code } = await listQuestionVoByPageUsingPost({
+          const { data, code } = await searchQuestionVoByPageUsingPost({
             ...params,
             sortField,
             sortOrder,
